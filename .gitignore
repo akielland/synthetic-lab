@@ -1,0 +1,22 @@
+# Virtual env
+.venv_synthetic/
+.venv/
+
+# Python junk
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# Data + outputs (keep structure, not big files)
+data/raw/
+data/processed/
+outputs/
+
+# OS
+.DS_Store
