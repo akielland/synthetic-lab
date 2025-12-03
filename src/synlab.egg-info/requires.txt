@@ -1,0 +1,5 @@
+dpmm
+
+[dev]
+pytest
+pytest-cov

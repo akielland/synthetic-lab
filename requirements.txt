@@ -1,2 +1,2 @@
-numpy
-pandas
+dpmm
+# numpy, pandas can be added explicitly, but it’s not strictly necessary – dpmm will bring them in
