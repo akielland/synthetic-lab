@@ -9,10 +9,16 @@ src/synlab.egg-info/top_level.txt
 src/synlab/core/__init__.py
 src/synlab/core/base.py
 src/synlab/data/__init__.py
+src/synlab/data/configs.py
 src/synlab/data/population_dpmm_wine.py
 src/synlab/evaluation/__init__.py
+src/synlab/evaluation/metrics_basic.py
+src/synlab/evaluation/metrics_ml.py
+src/synlab/evaluation/metrics_statistical.py
+src/synlab/evaluation/metrics_summary.py
 src/synlab/methods/__init__.py
 src/synlab/methods/dpmm_mst.py
 src/synlab/runners/__init__.py
 src/synlab/runners/run_dpmm_wine_mst.py
 src/synlab/tasks/__init__.py
+src/synlab/utils/paths.py

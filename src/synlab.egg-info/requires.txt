@@ -1,4 +1,5 @@
 dpmm
+dbfread
 
 [dev]
 pytest
