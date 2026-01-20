@@ -7,7 +7,7 @@ name = "synlab"
 version = "0.1.0"
 description = "Synthetic Lab - experiments with synthetic data production methods"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.12"
 dependencies = [
     "dpmm",
     "dbfread",
@@ -17,7 +17,18 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-cov",
+    "ruff",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I"]
+ignore = ["E501"]  # Line too long
+
+[tool.ruff.lint.isort]
+known-first-party = ["synlab"]
