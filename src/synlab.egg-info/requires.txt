@@ -1,5 +1,9 @@
 dpmm
 dbfread
+matplotlib
+seaborn
+pyreadstat
+jupyter
 
 [dev]
 pytest

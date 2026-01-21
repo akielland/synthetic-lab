@@ -6,6 +6,10 @@ Requires-Python: <3.12,>=3.10
 Description-Content-Type: text/markdown
 Requires-Dist: dpmm
 Requires-Dist: dbfread
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+Requires-Dist: pyreadstat
+Requires-Dist: jupyter
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: pytest-cov; extra == "dev"

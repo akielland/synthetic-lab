@@ -11,7 +11,6 @@ from typing import Dict, List, Optional
 
 from synlab.utils.paths import get_project_root
 
-
 # Single source of truth for paths
 PROJECT_ROOT: Path = get_project_root()
 
@@ -19,6 +18,7 @@ PROJECT_ROOT: Path = get_project_root()
 # -------------------------------------------------------------------
 # RVU (travel survey) config
 # -------------------------------------------------------------------
+
 
 @dataclass
 class RVUSampleConfig:
@@ -32,7 +32,15 @@ class RVUSampleConfig:
     """
 
     # Paths
-    raw_path: Path = PROJECT_ROOT / "data" / "raw" / "population" / "rvu" / "Filemail.com - RVU 2025" / "rvu_sampleNasjonal_RVU_PERSON_Nov26_0901.sav"
+    raw_path: Path = (
+        PROJECT_ROOT
+        / "data"
+        / "raw"
+        / "population"
+        / "rvu"
+        / "Filemail.com - RVU 2025"
+        / "rvu_sampleNasjonal_RVU_PERSON_Nov26_0901.sav"
+    )
     processed_path: Path = PROJECT_ROOT / "data" / "processed" / "rvu_sample.parquet"
 
     # Column names in the raw .sav file
@@ -48,6 +56,7 @@ class RVUSampleConfig:
 # Population marginals config
 # -------------------------------------------------------------------
 
+
 @dataclass
 class MarginalSourceConfig:
     """
@@ -61,8 +70,8 @@ class MarginalSourceConfig:
 
     # Column names in the raw DBF file
     raw_bsu_col: str = "grunnkrets"  # spatial unit in this DBF
-    category_col: str = "category"   # column with the category label
-    count_col: str = "count"         # column with the count
+    category_col: str = "category"  # column with the category label
+    count_col: str = "count"  # column with the count
 
     # Optional: if needed later for more complex shapes (wide -> long), we can extend this
 
@@ -81,3 +90,40 @@ class PopulationMarginalsConfig:
 
     sources: List[MarginalSourceConfig] = field(default_factory=list)
     processed_path: Path = PROJECT_ROOT / "data" / "processed" / "population_marginals.parquet"
+
+
+# -------------------------------------------------------------------
+# GeoSTAD (Business registry) config
+# -------------------------------------------------------------------
+
+
+@dataclass
+class GeoSTADConfig:
+    """
+    Configuration for the GeoSTAD business registry dataset.
+
+    raw_path:
+        SPSS .sav file with geocoded business locations.
+    processed_path:
+        Parquet file with cleaned and preprocessed business data.
+    """
+
+    # Paths
+    raw_path: Path = PROJECT_ROOT / "data" / "raw" / "population" / "geostad" / "VoF2025_geokodet.SAV"
+    processed_path: Path = PROJECT_ROOT / "data" / "processed" / "population" / "geostad_businesses.parquet"
+
+    # Processing options
+    filter_geocoded: bool = True  # Only include businesses with coordinates
+    remove_duplicates: bool = True  # Remove duplicate rows
+
+    # Feature columns to use for synthesis
+    feature_columns: List[str] = field(
+        default_factory=lambda: [
+            "SN2025",  # Industry code
+            "orgf2025",  # Organization type
+            "fpnr2025",  # Postal code
+            "grk2025",  # Grid cell / BSU
+            "X_2025",  # X-coordinate
+            "Y_2025",  # Y-coordinate
+        ]
+    )
