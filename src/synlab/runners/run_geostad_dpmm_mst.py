@@ -9,10 +9,8 @@ This script:
 5. Saves results to outputs/synthetic/population/
 """
 
-from pathlib import Path
-
-from synlab.core import ExperimentConfig
 from synlab.data import load_geostad, prepare_for_synthesis
+from synlab.data.configs import GeoSTADConfig
 from synlab.evaluation import (
     compare_basic_stats,
     compare_category_frequencies,
@@ -28,35 +26,42 @@ def main() -> None:
     # ========================================
     # 1. Configuration
     # ========================================
-    cfg = ExperimentConfig(
-        name="geostad_dpmm_mst_e1",
-        n_synth=5000,  # Generate 5k synthetic businesses
-        epsilon=1.0,
-        delta=1e-5,
-        proc_epsilon=0.1,
-        random_state=42,
+
+    # Experiment settings
+    experiment_name = "geostad_dpmm_mst_e1"
+    n_synthetic = 5000
+    random_state = 42
+
+    # Method configuration (DPMM-MST specific privacy parameters)
+    method_config = DPMMMSTConfig(
+        epsilon=1.0,  # Privacy budget
+        delta=1e-5,  # Privacy failure probability
+        proc_epsilon=0.1,  # Processing epsilon for DPMM
     )
+
+    # Data configuration
+    data_config = GeoSTADConfig()
 
     print("=" * 60)
     print("GeoSTAD Synthetic Data Generation")
     print("=" * 60)
-    print(f"Experiment: {cfg.name}")
-    print(f"Target synthetic records: {cfg.n_synth:,}")
-    print(f"Privacy: ε={cfg.epsilon}, δ={cfg.delta}")
+    print(f"Experiment: {experiment_name}")
+    print(f"Target synthetic records: {n_synthetic:,}")
+    print(f"Privacy: ε={method_config.epsilon}, δ={method_config.delta}")
     print()
 
     # ========================================
     # 2. Load and prepare data
     # ========================================
     print("Loading GeoSTAD data...")
-    df_real, domain = load_geostad(filter_geocoded=True, remove_duplicates=True)
+    df_real, domain = load_geostad(config=data_config)
 
     print(f"Real data: {len(df_real):,} businesses")
     print(f"Columns: {df_real.columns.tolist()}")
     print()
 
-    # Prepare for synthesis (select feature columns)
-    df_features = prepare_for_synthesis(df_real, sample_size=None)
+    # Prepare for synthesis (select feature columns from config)
+    df_features = prepare_for_synthesis(df_real, config=data_config, sample_size=None)
     print(f"Feature columns: {df_features.columns.tolist()}")
     print()
 
@@ -64,12 +69,7 @@ def main() -> None:
     # 3. Create synthesizer
     # ========================================
     print("Configuring DPMM-MST synthesizer...")
-    method_cfg = DPMMMSTConfig(
-        epsilon=cfg.epsilon,
-        delta=cfg.delta,
-        proc_epsilon=cfg.proc_epsilon,
-    )
-    synthesizer = DPMMMSTSynthesizer(method_cfg)
+    synthesizer = DPMMMSTSynthesizer(method_config)
 
     # ========================================
     # 4. Fit synthesizer
@@ -82,8 +82,8 @@ def main() -> None:
     # ========================================
     # 5. Generate synthetic data
     # ========================================
-    print(f"Generating {cfg.n_synth:,} synthetic records...")
-    df_synth = synthesizer.generate(cfg.n_synth, random_state=cfg.random_state)
+    print(f"Generating {n_synthetic:,} synthetic records...")
+    df_synth = synthesizer.generate(n_synthetic, random_state=random_state)
     print(f"✓ Generated synthetic data: {df_synth.shape}")
     print()
 
@@ -122,7 +122,7 @@ def main() -> None:
     # 7. Save results
     # ========================================
     root = get_project_root()
-    out_dir = root / "outputs" / "synthetic" / "population" / cfg.name
+    out_dir = root / "outputs" / "synthetic" / "population" / experiment_name
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Save synthetic data
@@ -131,13 +131,13 @@ def main() -> None:
 
     # Save configuration
     config_text = (
-        f"Experiment: {cfg.name}\n"
+        f"Experiment: {experiment_name}\n"
         f"Real records: {len(df_real):,}\n"
-        f"Synthetic records: {cfg.n_synth:,}\n"
-        f"Epsilon: {cfg.epsilon}\n"
-        f"Delta: {cfg.delta}\n"
-        f"Proc epsilon: {cfg.proc_epsilon}\n"
-        f"Random state: {cfg.random_state}\n"
+        f"Synthetic records: {n_synthetic:,}\n"
+        f"Epsilon: {method_config.epsilon}\n"
+        f"Delta: {method_config.delta}\n"
+        f"Proc epsilon: {method_config.proc_epsilon}\n"
+        f"Random state: {random_state}\n"
         f"Feature columns: {df_features.columns.tolist()}\n"
     )
     (out_dir / "config.txt").write_text(config_text)

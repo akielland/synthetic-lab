@@ -127,3 +127,85 @@ class GeoSTADConfig:
             "Y_2025",  # Y-coordinate
         ]
     )
+
+    # Identifier columns (loaded but not used for synthesis)
+    # These are quasi-unique values that don't provide modeling value
+    identifier_columns: List[str] = field(
+        default_factory=lambda: [
+            "orgn2025",  # Organization number (21% unique in sample)
+            "navn2025",  # Business name (21% unique in sample)
+        ]
+    )
+
+    # Derived columns to reconstruct after synthesis
+    # Format: {derived_column: source_column} - derived column is reconstructed from source
+    derived_columns: Dict[str, str] = field(
+        default_factory=lambda: {
+            "fpst2025": "fpnr2025",  # Postal area name derived from postal code
+        }
+    )
+
+    # Computed properties for column types (no duplication with feature_columns)
+    @property
+    def coordinate_columns(self) -> List[str]:
+        """Spatial coordinate columns used for filtering and metadata."""
+        return ["X_2025", "Y_2025"]
+
+    @property
+    def continuous_columns(self) -> List[str]:
+        """Feature columns with continuous (numeric) values."""
+        return [col for col in self.feature_columns if col in self.coordinate_columns]
+
+    @property
+    def categorical_columns(self) -> List[str]:
+        """Feature columns with categorical (discrete) values."""
+        return [col for col in self.feature_columns if col not in self.continuous_columns]
+
+    @property
+    def spatial_unit_column(self) -> str:
+        """Column name for spatial aggregation units (BSU/grid cells)."""
+        return "grk2025"
+
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        # Validate paths exist
+        if not self.raw_path.exists():
+            raise FileNotFoundError(
+                f"Raw data file not found: {self.raw_path}\n"
+                f"Please ensure the GeoSTAD data file exists at the specified location."
+            )
+
+        # Validate no overlap between feature and identifier columns
+        feature_set = set(self.feature_columns)
+        identifier_set = set(self.identifier_columns)
+        overlap = feature_set & identifier_set
+        if overlap:
+            raise ValueError(
+                f"Columns cannot be both features and identifiers: {overlap}\n"
+                f"Please remove these from either feature_columns or identifier_columns."
+            )
+
+        # Validate derived columns reference existing feature columns
+        for derived_col, source_col in self.derived_columns.items():
+            if source_col not in feature_set:
+                raise ValueError(
+                    f"Derived column '{derived_col}' references source '{source_col}' "
+                    f"which is not in feature_columns.\n"
+                    f"Available features: {self.feature_columns}"
+                )
+
+        # Validate coordinate columns are in features
+        coord_set = set(self.coordinate_columns)
+        missing_coords = coord_set - feature_set
+        if missing_coords:
+            raise ValueError(
+                f"Coordinate columns {missing_coords} not found in feature_columns.\n"
+                f"Coordinate columns must be included in features for synthesis."
+            )
+
+        # Validate spatial unit column is in features
+        if self.spatial_unit_column not in feature_set:
+            raise ValueError(
+                f"Spatial unit column '{self.spatial_unit_column}' not in feature_columns.\n"
+                f"This column is required for spatial analysis."
+            )

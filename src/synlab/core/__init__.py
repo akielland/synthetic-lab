@@ -1,1 +1,1 @@
-from .base import BaseSynthesizer, ExperimentConfig  # noqa: F401
+from .base import BaseSynthesizer  # noqa: F401

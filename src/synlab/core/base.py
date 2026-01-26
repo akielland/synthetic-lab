@@ -1,27 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Any, Optional
 
 import pandas as pd
-
-
-@dataclass
-class ExperimentConfig:
-    """
-    Configuration for a single synthetic-data experiment.
-
-    This is deliberately small and generic. For now we keep
-    dpmm-specific params here, but we can later move those into
-    method-specific config dataclasses.
-    """
-    name: str                # used for naming output folder
-    n_synth: int = 1000
-    epsilon: float = 1.0
-    delta: float = 1e-5
-    proc_epsilon: float = 0.1
-    random_state: Optional[int] = None
 
 
 class BaseSynthesizer(ABC):
