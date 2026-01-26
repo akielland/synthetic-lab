@@ -19,11 +19,7 @@ from synlab.evaluation import (
     evaluate_spatial_metrics,
 )
 from synlab.methods import DPMMMSTConfig, DPMMMSTSynthesizer
-
-
-def get_project_root() -> Path:
-    """Get project root directory."""
-    return Path(__file__).resolve().parents[3]
+from synlab.utils.paths import get_project_root
 
 
 def main() -> None:

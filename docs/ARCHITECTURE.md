@@ -14,6 +14,7 @@
   - `tasks/`: task-specific glue if needed.
   - `evaluation/`: metrics and comparison utilities.
   - `runners/`: scripts/entrypoints for experiments.
+  - `utils/`: shared utilities (paths, helpers).
 - `configs/`
   - Experiment configuration files by task.
 - `notebooks/`

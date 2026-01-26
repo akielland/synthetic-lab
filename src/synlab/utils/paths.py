@@ -2,6 +2,7 @@
 # src/synlab/utils/paths.py
 from pathlib import Path
 
+
 def get_project_root() -> Path:
     """
     Locate the project root directory.

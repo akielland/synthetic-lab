@@ -1,20 +1,10 @@
-from pathlib import Path
 import json
-from typing import Tuple, Dict, Any
+from pathlib import Path
+from typing import Any, Dict, Tuple
 
 import pandas as pd
 
-
-def get_project_root() -> Path:
-    """
-    Return the root of the project (directory that contains src/, data/, outputs/, etc.).
-    """
-    # this file: src/synlab/data/population_dpmm_wine.py
-    # parents[0] -> data/
-    # parents[1] -> synlab/
-    # parents[2] -> src/
-    # parents[3] -> project root
-    return Path(__file__).resolve().parents[3]
+from synlab.utils.paths import get_project_root
 
 
 def load_dpmm_wine() -> Tuple[pd.DataFrame, Dict[str, Any]]:

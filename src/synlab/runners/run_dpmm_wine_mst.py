@@ -3,11 +3,7 @@ from pathlib import Path
 from synlab.core import ExperimentConfig
 from synlab.data import load_dpmm_wine
 from synlab.methods import DPMMMSTSynthesizer, DPMMMSTConfig
-
-
-def get_project_root() -> Path:
-    # same logic as before, but local to this file
-    return Path(__file__).resolve().parents[3]
+from synlab.utils.paths import get_project_root
 
 
 def main() -> None:
