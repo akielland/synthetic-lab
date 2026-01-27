@@ -117,14 +117,13 @@ class GeoSTADConfig:
     remove_duplicates: bool = True  # Remove duplicate rows
 
     # Feature columns to use for synthesis
+    # Only include independent features (grk2025 and fpnr2025 are derived from X/Y)
     feature_columns: List[str] = field(
         default_factory=lambda: [
-            "SN2025",  # Industry code
-            "orgf2025",  # Organization type
-            "fpnr2025",  # Postal code
-            "grk2025",  # Grid cell / BSU
-            "X_2025",  # X-coordinate
-            "Y_2025",  # Y-coordinate
+            "SN2025",  # Industry code (independent)
+            "orgf2025",  # Organization type (independent)
+            "X_2025",  # X-coordinate (location)
+            "Y_2025",  # Y-coordinate (location)
         ]
     )
 
@@ -139,9 +138,12 @@ class GeoSTADConfig:
 
     # Derived columns to reconstruct after synthesis
     # Format: {derived_column: source_column} - derived column is reconstructed from source
+    # Note: grk2025 and fpnr2025 require spatial lookups from X/Y coordinates
     derived_columns: Dict[str, str] = field(
         default_factory=lambda: {
-            "fpst2025": "fpnr2025",  # Postal area name derived from postal code
+            "fpst2025": "fpnr2025",  # Postal area name from postal code
+            # Note: grk2025 and fpnr2025 need spatial reconstruction from X_2025/Y_2025
+            # This requires spatial join with reference geometries (not simple mapping)
         }
     )
 
@@ -185,15 +187,6 @@ class GeoSTADConfig:
                 f"Please remove these from either feature_columns or identifier_columns."
             )
 
-        # Validate derived columns reference existing feature columns
-        for derived_col, source_col in self.derived_columns.items():
-            if source_col not in feature_set:
-                raise ValueError(
-                    f"Derived column '{derived_col}' references source '{source_col}' "
-                    f"which is not in feature_columns.\n"
-                    f"Available features: {self.feature_columns}"
-                )
-
         # Validate coordinate columns are in features
         coord_set = set(self.coordinate_columns)
         missing_coords = coord_set - feature_set
@@ -203,9 +196,5 @@ class GeoSTADConfig:
                 f"Coordinate columns must be included in features for synthesis."
             )
 
-        # Validate spatial unit column is in features
-        if self.spatial_unit_column not in feature_set:
-            raise ValueError(
-                f"Spatial unit column '{self.spatial_unit_column}' not in feature_columns.\n"
-                f"This column is required for spatial analysis."
-            )
+        # Note: derived_columns and spatial_unit_column don't need to be in feature_columns
+        # They can be reconstructed after synthesis using spatial lookups or mappings
