@@ -1,6 +1,7 @@
 from .metrics_basic import (
     compare_basic_stats,
     compare_category_frequencies,
+    compare_single_category_frequency,
     compare_marginals,
     compare_missingness,
 )
@@ -29,6 +30,7 @@ __all__ = [
     "compare_missingness",
     "compare_basic_stats",
     "compare_category_frequencies",
+    "compare_single_category_frequency",
     "compare_marginals",
     # statistical
     "numeric_distribution_distances",

@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 from pandas.api.types import (
-    is_numeric_dtype,
-    is_categorical_dtype,
-    is_object_dtype,
     is_bool_dtype,
+    is_categorical_dtype,
+    is_numeric_dtype,
+    is_object_dtype,
 )
 
 
@@ -211,6 +211,53 @@ def compare_category_frequencies(
         results[col] = df_cat
 
     return results
+
+
+def compare_single_category_frequency(
+    real_df: pd.DataFrame,
+    synth_df: pd.DataFrame,
+    column: str,
+    top_k: int = 20,
+    normalize: bool = True,
+) -> pd.DataFrame:
+    """
+    Compare category frequencies for a single column.
+
+    Convenience wrapper around compare_category_frequencies for single-column use.
+    Useful in notebooks and scripts where you want to analyze one column at a time.
+
+    Args:
+        real_df: Real data DataFrame
+        synth_df: Synthetic data DataFrame
+        column: Column name to compare
+        top_k: Number of top categories to show (by absolute difference)
+        normalize: If True, show proportions; if False, show counts
+
+    Returns:
+        DataFrame indexed by category with columns:
+            - real: Real data frequency/proportion
+            - synthetic: Synthetic data frequency/proportion
+            - abs_diff: Absolute difference between real and synthetic
+
+    Example:
+        >>> result = compare_single_category_frequency(
+        ...     df_real, df_synth,
+        ...     column='orgf2025',
+        ...     top_k=10
+        ... )
+        >>> display(result)
+    """
+    # Detect actual cardinality in the real data to ensure column is not filtered out
+    actual_cardinality = real_df[column].nunique()
+
+    result_dict = compare_category_frequencies(
+        real_df,
+        synth_df,
+        columns=[column],
+        normalize=normalize,
+        max_categories=actual_cardinality,  # Include all categories, sorted by difference
+    )
+    return result_dict[column].head(top_k)  # Then show only top_k
 
 
 # ----------------------------------------------------------------------
